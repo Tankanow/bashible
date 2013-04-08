@@ -1,0 +1,23 @@
+#!/bin/bash
+function section(){
+  echo -e "\n$@"
+  echo "~~~~~~~~~~~"
+}
+
+function task(){
+  echo "  $@"
+}
+
+function exitIfSectionFails(){
+  exitIfNonZeroExitCode section "$@ failed" 
+}
+
+function exitIfTaskFails(){
+  $@ &> $LOG
+  exitIfNonZeroExitCode task "- $@ failed" 
+}
+
+function exitIfNonZeroExitCode(){
+  [ $? -ne 0 ] && { $@ ; exit 1 ; }
+  return 0
+}

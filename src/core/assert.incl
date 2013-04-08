@@ -1,0 +1,11 @@
+#!/bin/bash
+
+function assertExpectedVersionEqualsInstalledVersion(){
+  local module=${1?}
+  local expectedVersion=${2?} 
+  local installedVersion=${3} 
+
+  task "confirming that installed version of ${module} is $expectedVersion" 
+  [[ $expectedVersion == $installedVersion ]]
+  exitIfNonZeroExitCode task "- [[ expectedVersion ($expectedVersion) != installedVersion ($installedVersion) ]"
+}

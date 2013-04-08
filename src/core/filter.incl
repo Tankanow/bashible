@@ -1,0 +1,36 @@
+#!/bin/bash
+function filterOutSectionHeaders(){
+  local thisSection=${1?}
+  local nextSection=${2}
+
+  egrep -v "$(getGrepStringForThisSection ${thisSection} ${nextSection})"
+}
+
+function getGrepStringForThisSection(){
+  local thisSection=${1?}
+  local nextSection=${2}
+  
+  # this is the grep string if we need to filter out two sections
+  local grepString="${thisSection}|${nextSection}|^$"
+  # ... and this this the grep string if we only need to filter out one (the last) section
+  [ -z "$nextSection" ] && grepString="${thisSection}|^$"
+  echo ${grepString}
+}
+
+function getSedStringForThisSection(){
+  local thisSection=${1?}
+  local nextSection=${2}
+  
+  # This is the sed string if we are getting lines between two sections
+  local sedString="/${thisSection}/,/${nextSection}/p"
+  # ... and this is the sed string if we are getting lines between one section and the end of the file
+  [ -z "$nextSection" ] && sedString="/${thisSection}/,\$p"
+  echo ${sedString}
+}
+
+function getLinesInThisSection(){
+  local thisSection=${1?}
+  local nextSection=${2}
+
+  sed -n "$(getSedStringForThisSection ${thisSection} ${nextSection})" $CHECKLIST
+}

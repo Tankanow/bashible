@@ -1,0 +1,34 @@
+#!/bin/bash
+
+function file(){
+  local file=${1?}
+  local verb=${2?}
+  shift ; shift
+  local object=$@
+ 
+  file_${verb} ${file} "${object}"
+}
+
+function file_copyTo(){
+  local sourceFile=`eval "echo ${1?}"`
+  local destFile=`eval "echo ${2?}"`
+
+  task "Copying $sourceFile -> $destFile (via rsync with rsh)"
+  exitIfTaskFails rsync -au -e ssh "$sourceFile" "$destFile"
+}
+
+function file_exists(){
+  local file=`eval "echo ${1?}"`
+
+  task "confirming file ${file} exists"
+  exitIfTaskFails [ -e "${file}" ]
+}
+
+function file_contains(){
+  local file=`eval "echo ${1?}"`
+  local stringToSearchFor=${2?}
+ 
+  task "confirming file ${file} contains string \"${stringToSearchFor}\""
+  egrep -e "${stringToSearchFor}" "${file}" &> $LOG
+  exitIfNonZeroExitCode task "- egrep -e \"${stringToSearchFor}\" ${file} failed"
+}

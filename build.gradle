@@ -1,0 +1,14 @@
+defaultTasks 'clean', 'package'
+
+def getSrcDir = { return "src" }
+def getBinDir = { return "bin" }
+
+task clean(type: Delete) {
+  delete getBinDir()
+}
+
+task("package", type: Copy) {
+  from fileTree(getSrcDir()).files
+  into getBinDir()
+}
+

@@ -1,0 +1,21 @@
+#!/bin/bash 
+
+ensures:
+  echo  
+
+pythonEnsures:
+  python versionIs 2.7.1
+
+perlEnsures:
+  perl versionIs 5.12.3
+  File::Copy moduleVersionIs 2.18
+
+files:  
+  ~/.bashrc exists
+  ~/.bashrc copyTo /tmp/.bashrc
+  /tmp/.bashrc contains export PATH
+
+tables:
+  customer exists
+  customer.customerID has (1,2)
+

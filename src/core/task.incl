@@ -1,0 +1,27 @@
+#!/bin/bash
+function loopThroughSectionsTasks(){
+  local thisSection=${1?}
+  local nextSection=${2-''}
+
+  section "${thisSection}"
+
+  getTasksInThisSection ${thisSection} ${nextSection} | executeTasksInThisSection ${thisSection}
+
+  exitIfSectionFails "${thisSection}"
+}
+
+function executeTasksInThisSection(){
+  local thisSection=${1?}
+
+  while read task; do 
+    ${thisSection%s:} $task
+  done 
+}
+
+function getTasksInThisSection(){
+  local thisSection=${1?}
+  local nextSection=${2}
+
+
+  getLinesInThisSection ${thisSection} ${nextSection} | filterOutSectionHeaders ${thisSection} ${nextSection}
+}

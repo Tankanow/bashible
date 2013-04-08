@@ -1,0 +1,18 @@
+#!/bin/bash
+
+function pythonEnsure(){
+  local module=${1?}
+  local verb=${2?}
+  local object=${3?}
+
+  pythonEnsure_${verb} ${module} ${object}
+}
+
+function pythonEnsure_versionIs(){
+  local module=${1?}
+  local expectedVersion=${2?}
+
+  local installedVersion=$(python --version 2>&1 | awk '{print$2}' 2> $LOG)  
+  
+  assertExpectedVersionEqualsInstalledVersion  $module $expectedVersion $installedVersion
+}

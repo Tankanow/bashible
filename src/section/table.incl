@@ -1,0 +1,26 @@
+#!/bin/bash
+# TODO: replace with your SQL driver
+SQLDRIVER=echo
+
+function table(){
+  local tableName=${1?}
+  local verb=${2?}
+  local object=${3}
+
+  task "confirming $@"
+
+  exitIfTaskFails table_${verb} $tableName $object
+}
+
+function table_exists(){
+  local $tableName=${1?}
+
+  $SQLDRIVER "SELECT * FROM ${tableName}" &> $LOG
+}
+
+function table_has(){
+  local tableColumn=(${1//./ })
+  local object=${2?}
+
+  $SQLDRIVER "SELECT * FROM ${tableColumn[0]} WHERE ${tableColumn[1]} IN $object" &> $LOG
+}

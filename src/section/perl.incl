@@ -1,0 +1,27 @@
+#!/bin/bash
+
+function perlEnsure(){
+  local module=${1?}
+  local verb=${2?}
+  local object=${3?}
+
+  perlEnsure_${verb} ${module} ${object}
+}
+
+function perlEnsure_moduleVersionIs(){
+  local module=${1?}
+  local expectedVersion=${2?}
+
+  local installedVersion=$(perl -M${module} -e "print \$${module}::VERSION" 2> $LOG)  
+  
+  assertExpectedVersionEqualsInstalledVersion $module $expectedVersion $installedVersion
+}
+
+function perlEnsure_versionIs(){
+  local module=${1?}
+  local expectedVersion=${2?}
+
+  local installedVersion=$(perl -v | egrep -o -e '\(v.*\)' | sed -e 's/[()v]//g')
+
+  assertExpectedVersionEqualsInstalledVersion  $module $expectedVersion $installedVersion 
+}

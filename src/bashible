@@ -1,0 +1,81 @@
+#!/bin/bash
+
+#make sure bashible incl files are on the path
+DIR="$(cd "$(dirname "$0")" && pwd -P)"
+export PATH=$DIR:$PATH
+
+# core incl
+source flow.incl
+source task.incl
+source filter.incl
+source assert.incl
+# section incl 
+source file.incl
+source perl.incl
+source ensure.incl
+source table.incl
+source python.incl
+
+VERSION=1.0.0-SNAPSHOT
+LOG=${LOG-/dev/null}
+SECTION_DEFINITION_GREPSTRING='^[a-z]{1}.*:\ *'
+
+function usage () {
+
+cat <<usage-message                             # *do* expand variables
+-------------------------------------
+Description: Uses a checklist to confirm a machines environment
+Usage (v$VERSION): $SELF -c \$CHECKLIST 
+  [OPTIONS]
+    -l \$LOG: log file for debugging (defaults to $LOG)
+
+-------------------------------------
+usage-message
+
+    exit 0
+}
+
+while getopts c:hl: opt ; do
+    case "$opt" in
+    c) CHECKLIST="$OPTARG" ;;
+    l) LOG="$OPTARG" ;;
+    h) usage
+    esac
+done
+
+: ${CHECKLIST?}
+
+
+function processSections(){
+  local sections=($(getSectionsArray))
+  # I would refactor this into smaller functions; however, it is very difficult to pass arrays in bash
+  for sectionIndex in ${!sections[*]} ; do
+    if $(isLastSection $sectionIndex ${#sections[*]}); then
+      loopThroughSectionsTasks "${sections[$sectionIndex]}"
+    else
+      loopThroughSectionsTasks "${sections[$sectionIndex]}" "${sections[(($sectionIndex + 1))]}"
+    fi
+  done
+}
+
+function getSectionsArray(){
+
+  egrep -e "${SECTION_DEFINITION_GREPSTRING}" $CHECKLIST | tr '\n' ' '
+}
+
+function isLastSection(){
+  local sectionIndex=${1?}
+  local numberOfSections=${2?}
+  [[ ${sectionIndex} -ge $((${numberOfSections} - 1)) ]]
+  return $?
+}
+
+## MAIN
+echo -e "\nExecuting checklist: ${CHECKLIST}"
+echo "---------------------------------"
+
+processSections 
+
+echo -e "\n---------------------------------"
+echo -e "Successfully executed checklist!\n"
+
